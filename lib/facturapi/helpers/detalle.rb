@@ -9,13 +9,13 @@ module Facturapi
         @nro_lin_det = params[:nro_lin_det]
         @tpo_codigo = params[:tpo_codigo]
         @vlr_codigo = params[:vlr_codigo]
-        @ind_exe = params[:ind_exe]
+        @ind_exe = /^[0126]$/ =~ params[:ind_exe].to_s ? params[:ind_exe].to_s : '0'
         @rut_mandante = params[:rut_mandante]
         @nmb_item = params[:nmb_item]
         @dsc_item = params[:dsc_item]
-        @qty_item = params[:qty_item]
+        @qty_item = params[:qty_item].to_f.round(6)
         @unmd_item = params[:unmd_item]
-        @prc_item = params[:prc_item]
+        @prc_item = params[:prc_item].to_f.round(2)
         @monto_item = params[:monto_item]
       end
 
@@ -33,6 +33,26 @@ module Facturapi
           detalle << create_node('PrcItem') { |n| n << prc_item }
           detalle << create_node('MontoItem') { |n| n << monto_item }
         end
+      end
+
+      def autocomplete!
+        self.monto_item = (prc_item * qty_item).to_i if monto_item.blank?
+      end
+
+      def afecto_iva?
+        ind_exe == '0'
+      end
+
+      def exento_iva?
+        ind_exe == '1'
+      end
+
+      def no_fact?
+        ind_exe == '2'
+      end
+
+      def no_fact_neg?
+        ind_exe == '6'
       end
     end
   end

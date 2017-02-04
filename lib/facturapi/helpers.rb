@@ -1,5 +1,7 @@
 require 'facturapi/helpers/detalle'
 require 'facturapi/helpers/dsc_rcg_global'
+require 'facturapi/helpers/descuento_global'
+require 'facturapi/helpers/recargo_global'
 require 'facturapi/helpers/dte'
 require 'facturapi/helpers/emisor'
 require 'facturapi/helpers/encabezado'
