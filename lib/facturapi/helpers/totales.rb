@@ -1,9 +1,81 @@
 module Facturapi
   module Helpers
+    # Corresponde a los valores totales de una Boleta Electronica.
     class Totales
       IVA = 0.19
-      attr_accessor :mnt_neto, :mnt_exe, :iva, :mnt_total, :monto_nf,
-                    :total_periodo, :saldo_anterior, :vlr_pagar
+
+      # Corresponde al valor Neto de la boleta electronica, solamente se indica
+      # en el caso que el sea una boleta afecta y que IndMntNeto tenga el
+      # valor 2. Al ser un campo de monto, se debe indicar sin decimales y sin
+      # separadores de miles. Se calcula de la siguiente forma:
+      #
+      #   MntNeto = Suma de MontoItem por linea de detalle - Descuentos + Recargos
+      #   # Solamente MontoItem de los items que tienen IndExe = 0
+      #   # Descuentos y Recargos basados en etiqueta <DscRcgGlobal>
+      attr_accessor :mnt_neto
+
+      # Corresponde al valor Exento de la boleta electronica. Al ser un campo de
+      # monto, se debe indicar sin decimales y sin separadores de miles.
+      # Se calcula de la siguiente forma:
+      #
+      #   MntExe = Suma de ValorExento por linea de detalle
+      #   # Solamente MontoItem de los items que tienen IndExe = 1
+      attr_accessor :mnt_exe
+
+      # Corresponde al valor IVA (Impuesto al Valor Agregado) de la boleta
+      # electronica, solamente se indica en el caso que el sea una boleta afecta
+      # y que IndMntNeto tenga el valor 2. Al ser un campo de monto, se debe
+      # indicar sin decimales y sin separadores de miles.
+      # Se calcula de la siguiente forma:
+      #
+      #   IVA = MntNeto * 19%
+      attr_accessor :iva
+
+      # Corresponde al valor total de la boleta electronica y se puede calcular
+      # de dos maneras diferentes. Al ser un campo de monto, se debe indicar sin
+      # decimales y sin separadores de miles.
+      # Se calcula de la siguiente forma:
+      #
+      #   # Para el caso que se indique una boleta afecta y que IndMntNeto tenga
+      #   # el valor 2, se calcula:
+      #   MntTotal = MntNeto + IVA + MntExe
+      #   # Para el caso que no se indique IndMntNeto, o tenga el valor 0, se
+      #   # calcula:
+      #   MntTotal = Suma de MontoItem por linea de detalle - Descuentos + Recargos
+      #   # Solamente MontoItem de los items que tienen IndExe = 0
+      #   # Descuentos y Recargos basados en etiqueta <DscRcgGlobal>
+      attr_accessor :mnt_total
+
+      # Corresponde a la suma de los montos de bienes o servicios no facturables
+      # de la boleta electronica. Los montos no facturables pueden ser
+      # negativos. Al ser un campo de monto, se debe indicar sin decimales y sin
+      # separadores de miles. Se calcula de la siguiente forma:
+      #
+      #   MontoNF = Suma de MontoItem por linea de detalle
+      #   # Solamente MontoItem de los items que tienen IndExe igual a 2 y 6.
+      attr_accessor :monto_nf
+
+      # Corresponde a la suma final del documento, tomando el total y el monto
+      # no facturable en la boleta electronica. Al ser un campo de monto, se
+      # debe indicar sin decimales y sin separadores de miles.
+      # Se calcula de la siguiente forma:
+      #
+      #   TotalPeriodo = MntTotal + MontoNF
+      attr_accessor :total_periodo
+
+      # Corresponde al saldo anterior de un periodo, esta es informacion
+      # ilustrativa en la boleta electronica, es decir, que se utiliza para el
+      # formato impreso del documento. Si no se desea usar, se debe asignar
+      # 0 (cero). Al ser un campo de monto, se debe indicar sin decimales y sin
+      # separadores de miles.
+      attr_accessor :saldo_anterior
+
+      # Es el valor cobrado de la transaccion realizada. Al ser un campo de
+      # monto, se debe indicar sin decimales y sin separadores de miles.
+      # Se calcula de la siguiente forma:
+      #
+      #   VlrPagar = MntTotal + SaldoAnterior
+      attr_accessor :vlr_pagar
 
       def initialize(params = {})
         @mnt_neto = params[:mnt_neto].to_i if params[:mnt_neto]

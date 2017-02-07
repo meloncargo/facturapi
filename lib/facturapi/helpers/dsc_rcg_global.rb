@@ -1,8 +1,41 @@
 module Facturapi
   module Helpers
+    # Corresponde a la o las lineas de descuento / recargo global de una
+    # Boleta Electronica, etiqueta e informacion opcional, con un maximo
+    # de 20
     class DscRcgGlobal
-      attr_accessor :nro_lin_dr, :tpo_mov, :glosa_dr, :tpo_valor, :valor_dr,
-                    :ind_exe_dr
+      # Indica el numero secuencial de linea de descuento /
+      # recargo de la Boleta Electronica, el cual puede ser desde la linea 1
+      # hasta la linea 20
+      attr_accessor :nro_lin_dr
+
+      # Indica el tipo de movimiento de la linea de descuento /
+      # recargo, informando que tipo de aplicacion tendran los posteriores
+      # valores en la linea, los tipos son:
+      # - D: Corresponde a una DESCUENTO
+      # - R: Corresponde a una RECARGO
+      attr_accessor :tpo_mov
+
+      # Corresponde a una breve descripcion del descuento / recargo
+      attr_accessor :glosa_dr
+
+      # Indica el tipo de valor de la linea de descuento / recargo. El valor
+      # sera indicado en el campo ValorDR, los tipos son:
+      # - % : Corresponde a un porcentaje
+      # - $ : Corresponde a un valor en moneda nacional
+      attr_accessor :tpo_valor
+
+      # Es el valor de descuento / recargo. Su valor debe ser hasta 16 digitos y
+      # 2 decimales. Al ser un campo de monto, se debe indicar sin decimales y
+      # sin separadores de miles.
+      attr_accessor :valor_dr
+
+      # Indicador de exencion de un descuento / recargo, para la Boleta
+      # Electronica. Los indicadores son:
+      # - 0: Descuento / Recargo se aplica a items afectos a IVA
+      # - 1: Descuento / Recargo se aplica a items exentos
+      # - 2: Descuento / Recargo se aplica a items facturables
+      attr_accessor :ind_exe_dr
 
       def initialize(params = {})
         @nro_lin_dr = params[:nro_lin_dr]

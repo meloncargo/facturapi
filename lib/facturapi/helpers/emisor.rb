@@ -1,8 +1,26 @@
 module Facturapi
   module Helpers
+    # Corresponde a los datos del Emisor de una Boleta Electronica
     class Emisor
-      attr_accessor :rut_emisor, :rzn_soc_emisor, :giro_emisor, :dir_origen,
-                    :cmna_origen, :ciudad_origen
+      # Corresponde al RUT del Emisor, con valor desde 100.000
+      # hasta 99 millones, guion y digito verificador (sin separador de miles).
+      attr_accessor :rut_emisor
+
+      # Corresponde a la razon social o nombre del contribuyente Emisor.
+      attr_accessor :rzn_soc_emisor
+
+      # Corresponde al giro del negocio del Emisor antes identificado.
+      attr_accessor :giro_emisor
+
+      # Corresponde a la direccion legal del Emisor (registrada en el SII), no
+      # se especifica la comuna ni la ciudad.
+      attr_accessor :dir_origen
+
+      # Corresponde a la comuna legal del Emisor (registrada en el SII).
+      attr_accessor :cmna_origen
+
+      # Corresponde a la ciudad legal del Emisor (registrada en el SII)
+      attr_accessor :ciudad_origen
 
       def initialize(params = {})
         @rut_emisor = params[:rut_emisor]
