@@ -1,7 +1,7 @@
 module Facturapi
   module Helpers
     class Dte
-      attr_accessor :encabezado, :detalle, :dsc_rcg_global, :referencia
+      attr_accessor :encabezado, :detalle, :dsc_rcg_global, :referencia, :id
 
       def initialize(params = {})
         @encabezado = params[:encabezado]
@@ -46,8 +46,9 @@ module Facturapi
 
       def as_node
         doc = XML::Document.new
+        param = { 'ID' => id } unless id.blank?
         doc.root = create_node('DTE', version: '1.0') do |dte|
-          dte << create_node('Documento', 'ID' => 'F100T39') do |documento|
+          dte << create_node('Documento', param) do |documento|
             documento << encabezado.as_node
             detalle.each { |d| documento << d.as_node }
             dsc_rcg_global.each { |d| documento << d.as_node }
