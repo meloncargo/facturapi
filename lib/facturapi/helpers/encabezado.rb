@@ -7,7 +7,7 @@ module Facturapi
         @id_doc = params[:id_doc]
         @emisor = params[:emisor]
         @receptor = params[:receptor]
-        @totales = params[:totales]
+        @totales = params[:totales] || Totales.new
       end
 
       def as_node

@@ -56,7 +56,7 @@ module Facturapi
         @folio = params[:folio] || 0
         @fch_emis = format_date(params[:fch_emis])
         @ind_servicio = params[:ind_servicio].to_s if /^[1-4]$/ =~ params[:ind_servicio].to_s
-        @ind_mnt_neto = params[:ind_mnt_neto].to_s if /^[02]$/ =~ params[:ind_mnt_neto].to_s
+        @ind_mnt_neto = /^[02]$/ =~ params[:ind_mnt_neto].to_s ? params[:ind_mnt_neto].to_s : '0'
         @periodo_desde = format_date(params[:periodo_desde])
         @periodo_hasta = format_date(params[:periodo_hasta])
         @fch_venc = format_date(params[:fch_venc])
