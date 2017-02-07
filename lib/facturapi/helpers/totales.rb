@@ -102,9 +102,21 @@ module Facturapi
         end
       end
 
-      def autocomplete!
-        self.iva = (mnt_neto * IVA).to_i if iva.blank?
-        yield
+      def autocomplete!(params = {})
+        is_monto_neto = params[:is_monto_neto]
+        mnt_neto = params[:mnt_neto]
+        mnt_exe = params[:mnt_exe]
+        monto_nf = params[:monto_nf]
+        if is_monto_neto && mnt_neto
+          self.mnt_neto = mnt_neto if self.mnt_neto.blank?
+          self.iva = (mnt_neto * IVA).to_i if iva.blank?
+        end
+        self.mnt_exe = mnt_exe if self.mnt_exe.blank? && mnt_exe
+        self.monto_nf = monto_nf if self.monto_nf.blank? && monto_nf
+
+        if mnt_total.blank? && mnt_neto
+          self.mnt_total = is_monto_neto ? auto_mnt_total : mnt_neto
+        end
         self.total_periodo = mnt_total + monto_nf if total_periodo.blank?
         self.vlr_pagar = mnt_total + saldo_anterior if vlr_pagar.blank?
       end

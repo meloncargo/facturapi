@@ -51,8 +51,8 @@ module Facturapi
           dte << create_node('Documento', param) do |documento|
             documento << encabezado.as_node
             detalle.each { |d| documento << d.as_node }
-            dsc_rcg_global.each { |d| documento << d.as_node }
-            referencia.each { |r| documento << r.as_node }
+            dsc_rcg_global.each { |d| documento << d.as_node } if dsc_rcg_global && dsc_rcg_global.any?
+            referencia.each { |r| documento << r.as_node } if referencia && referencia.any?
           end
         end
         doc
@@ -69,34 +69,27 @@ module Facturapi
           mnt_exe += det.monto_item if det.exento_iva?
           monto_nf += det.monto_item if det.no_fact? || det.no_fact_neg?
         end
-        dsc_rcg_global.each_with_index do |drg, idx|
-          drg.nro_lin_dr = idx + 1 if drg.nro_lin_dr.blank?
-          if drg.descuento?
-            mnt_neto -= drg.valor_dr
-          else
-            mnt_neto += drg.valor_dr
+        if dsc_rcg_global && dsc_rcg_global.any?
+          dsc_rcg_global.each_with_index do |drg, idx|
+            drg.nro_lin_dr = idx + 1 if drg.nro_lin_dr.blank?
+            if drg.descuento?
+              mnt_neto -= drg.valor_dr
+            else
+              mnt_neto += drg.valor_dr
+            end
           end
         end
-        referencia.each_with_index do |ref, idx|
-          ref.nro_lin_ref = idx + 1 if ref.nro_lin_ref.blank?
-        end
-
-        if encabezado.id_doc.monto_neto? && totales.mnt_neto.blank?
-          totales.mnt_neto = mnt_neto
-        end
-        totales.mnt_exe = mnt_exe if totales.mnt_exe.blank?
-        totales.monto_nf = monto_nf if totales.monto_nf.blank?
-
-        totales.autocomplete! do
-          if totales.mnt_total.blank?
-            totales.mnt_total =
-              if encabezado.id_doc.monto_neto?
-                totales.auto_mnt_total
-              else
-                mnt_neto
-              end
+        if referencia && referencia.any?
+          referencia.each_with_index do |ref, idx|
+            ref.nro_lin_ref = idx + 1 if ref.nro_lin_ref.blank?
           end
         end
+        totales.autocomplete!(
+          is_monto_neto: encabezado.id_doc.monto_neto?,
+          mnt_neto: mnt_neto,
+          mnt_exe: mnt_exe,
+          monto_nf: monto_nf
+        )
         self
       end
     end
