@@ -1,41 +1,121 @@
 # Facturapi
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/facturapi`. To experiment with that code, run `bin/console` for an interactive prompt.
+Esta gema facilita la integración con el servicio SOAP de facturacion.cl para
+aplicaciones Ruby on Rails.
 
-TODO: Delete this and the text above, and describe your gem
+## Instalación
 
-## Installation
-
-Add this line to your application's Gemfile:
+Agrega a tu Gemfile:
 
 ```ruby
 gem 'facturapi'
 ```
 
-And then execute:
+Y luego ejecuta
 
     $ bundle
 
-Or install it yourself as:
+## Configuración
 
-    $ gem install facturapi
+Agrega a tu archivo `config/initializers/facturapi.rb`:
 
-## Usage
+```ruby
+Facturapi.configure do |config|
+  config.fact_rut '1-9'
+  config.fact_user 'usuario'
+  config.fact_password '12345'
+  config.fact_port 9350
+end
+```
 
-TODO: Write usage instructions here
+o también puedes definir variables de entorno en tu sistema:
 
-## Development
+```
+FACTURACION_USER=1-9
+FACTURACION_RUT=usuario
+FACTURACION_PASSWORD=12345
+FACTURACION_PORT=9350
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+## Uso
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Ejemplo mínimo de envío de boleta:
 
-## Contributing
+```ruby
+include Facturapi::Helpers
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/facturapi. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+detalle = [
+  Detalle.new(
+    vlr_codigo: '17409',
+    nmb_item: 'Reloj',
+    qty_item: '1',
+    prc_item: 20_500
+  )
+]
 
+dte = Dte.new(
+  encabezado: Encabezado.new(
+    id_doc: IdDoc.new(
+      fch_emis: Date.new(2016, 11, 14),
+      ind_servicio: 3
+    ),
+    emisor: Emisor.new(
+      rut_emisor: '1-9',
+      rzn_soc_emisor: 'SUPER EMPRESA',
+      giro_emisor: 'VENDEMOS COSAS',
+      dir_origen: 'Luis Thayer Ojeda Nº1525',
+      cmna_origen: 'Providencia',
+      ciudad_origen: 'Santiago'
+    ),
+    receptor: Receptor.new(
+      cdg_int_recep: '1000215-220',
+      rzn_soc_recep: 'Juan Perez',
+      contacto: 'juan@perez.com',
+      dir_recep: 'CALLE A 50',
+      cmna_recep: 'SANTIAGO',
+      ciudad_recep: 'SANTIAGO'
+    )
+  ),
+  detalle: detalle
+)
+# Realiza cálculos automáticos de totales, ademas de rellenar datos de
+dte.autocomplete!
 
-## License
+procesar = Facturapi::Service::Procesar.new(dte)
+doc = procesar.send
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+puts doc
+# <?xml version="1.0"?>
+# <WSPLANO>
+#   <Resultado>True</Resultado>
+#   <Mensaje>Proceso exitoso.</Mensaje>
+#   <Detalle>
+#     <Documento>
+#       <Folio>4666638667</Folio>
+#       <TipoDte>39</TipoDte>
+#       <Operacion>VENTA</Operacion>
+#       <Fecha>2017-02-20T19:01:36</Fecha>
+#       <Resultado>True</Resultado>
+#     </Documento>
+#   </Detalle>
+# </WSPLANO>
 
+```
+
+Mas información sobre los atributos aceptados por los helpers, revisa [la
+documentación](https://github.com/meloncargo/facturapi/tree/master/lib/facturapi/helpers)
+contenida en los mismos.
+
+## Why tanto spanglish?
+
+Ya que esta gema sería usada principalmente por desarrolladores chilenos y para
+facilidad de uso, toda la documentación irá en español. Además los nombres de
+clases y variables seguirán la misma nomenclatura usada en el servicio web, la
+cual es en español. Todo lo que escape a el ámbito descrito, será en inglés.
+
+## Aviso Legal
+
+Esta gema no está desarrollada, soportada ni avalada de ninguna manera por
+Desis Ltda. y es el resultado de ingeniería inversa al servicio de integración
+de facturacion.cl con fines de interoperabilidad, como lo permite la [ley chilena
+20.435, artículo 71 Ñ, sección b.](http://www.leychile.cl/Navegar?idNorma=1012827)
