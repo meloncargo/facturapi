@@ -10,8 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["alter.strife@gmail.com"]
 
   spec.summary       = %q{Ruby integration with facturacion.cl service}
-  # spec.description   = %q{TODO: Write a longer description or delete this line.}
-  # spec.homepage      = ""
+  spec.homepage      = "https://github.com/meloncargo/facturapi"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
@@ -24,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "libxml-ruby", "~> 2.0"
   spec.add_runtime_dependency "nokogiri", "~> 1.4", ">= 1.4.0"
 
-  spec.add_development_dependency "bundler", "~> 1.13"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "pry", "~> 0.10"
 end
