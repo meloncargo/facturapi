@@ -1,5 +1,7 @@
+require 'facturapi/services/responses/procesar'
+
 module Facturapi
-  module Service
+  module Services
     # Permite procesar el archivo de Integracion y generar el DTE (Documento
     # Tributario Electronico).
     class Procesar
@@ -13,7 +15,7 @@ module Facturapi
         file = Base64.strict_encode64(dte.as_node.to_s)
         params = { file: file, formato: 2 }
         response = Facturapi::Client.call(:procesar, params)
-        Nokogiri::XML(response)
+        Facturapi::Services::Responses::Procesar.new(response)
       end
     end
   end
