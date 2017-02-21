@@ -5,8 +5,7 @@ module Facturapi
     class << self
       def call(method, params = {})
         params[:login] ||= login
-        response = client.call(method, message: params)
-        response.body[:procesar_response][:procesar_result]
+        client.call(method, message: params)
       end
 
       def client
