@@ -12,12 +12,18 @@ module Facturapi
       end
 
       def send
-        file = Base64.strict_encode64(dte.as_node.to_s)
-        params = { file: file, formato: 2 }
         response = Facturapi::Client.call(:procesar, params)
         Facturapi::Services::Responses::Procesar.new(
           response.body[:procesar_response][:procesar_result]
         )
+      end
+
+      def params
+        { file: Base64.strict_encode64(dte.as_node.to_s), formato: 2 }
+      end
+
+      def to_s
+        Facturapi::Client.xml(:procesar, params)
       end
     end
   end

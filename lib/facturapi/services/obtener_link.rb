@@ -27,16 +27,23 @@ module Facturapi
       def initialize(params)
         @tpomov = Base64.strict_encode64(params[:tpomov] || 'B')
         @folio = Base64.strict_encode64(params[:folio].to_s)
-        @tipo = Base64.strict_encode64(params[:tipo].to_s || '39')
+        @tipo = Base64.strict_encode64 (params[:tipo] || '39').to_s
         @cedible = Base64.strict_encode64(params[:cedible] ? 'True' : 'False')
       end
 
       def send
-        params = { tpomov: tpomov, folio: folio, tipo: tipo, cedible: cedible }
         response = Facturapi::Client.call(:obtener_link, params)
         Facturapi::Services::Responses::ObtenerLink.new(
           response.body[:obtener_link_response][:obtener_link_result]
         )
+      end
+
+      def params
+        { tpomov: tpomov, folio: folio, tipo: tipo, cedible: cedible }
+      end
+
+      def to_s
+        Facturapi::Client.xml(:obtener_link, params)
       end
     end
   end

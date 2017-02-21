@@ -8,6 +8,11 @@ module Facturapi
         client.call(method, message: params)
       end
 
+      def xml(method, params = {})
+        ops = client.operation(method)
+        ops.build(message: params).to_s
+      end
+
       def client
         @client ||= Savon.client(
           wsdl: 'http://ws1.facturacion.cl/WSDS/wsplano.asmx?wsdl'
