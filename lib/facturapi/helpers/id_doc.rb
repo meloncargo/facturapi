@@ -3,10 +3,28 @@ module Facturapi
     # Corresponde a la Identificacion del Documento en el encabezado de una
     # Boleta Electronica
     class IdDoc
+      VALID_TIPO_DTE = /^30|32|33|34|35|38|39|40|41|43|45|46|50|52|55|56|60|61$/
+
       # Corresponde al numero de Tipo de Documento codificado por el Servicio de
       # Impuestos Internos (SII).
+      # - 30: FACTURA
+      # - 32: FACTURA EXENTA
+      # - 33: FACTURA ELECTRONICA
+      # - 34: FACTURA EXENTA ELECTRONICA
+      # - 35: BOLETA
+      # - 38: BOLETA EXENTA
       # - 39: BOLETA ELECTRONICA
+      # - 40: LIQUIDACION FACTURA
       # - 41: BOLETA EXENTA ELECTRONICA
+      # - 43: LIQUIDACION FACTURA ELECTRONICA
+      # - 45: FACTURA DE COMPRA
+      # - 46: FACTURA DE COMPRA ELECTRONICA
+      # - 50: GUIA DE DESPACHO
+      # - 52: GUIA DE DESPACHO ELECTRONICA
+      # - 55: NOTA DE DEBITO
+      # - 56: NOTA DE DEBITO ELECTRONICA
+      # - 60: NOTA DE CREDITO
+      # - 61: NOTA DE CREDITO ELECTRONICA
       attr_accessor :tipo_dte
 
       # Es el folio del documento de acuerdo con los correlativos
@@ -18,6 +36,11 @@ module Facturapi
       # Es la fecha de emision del documento en cuestion, el formato de la fecha
       # es "AAAA-MM-DD' (anio, mes, dia).
       attr_accessor :fch_emis
+
+      # Corresponde a la Fecha de vencimiento y es obligatoria en
+      # el caso de una facturacion de servicios periodicos domiciliarios, el
+      # formato de la fecha es "AAAA-MM-DD' (anio, mes, dia)
+      attr_accessor :fch_venc
 
       # Corresponde al indicador que identifica el tipo de transaccion que se
       # realiza con el documento de acuerdo a lo codificado por el SII.
@@ -46,20 +69,58 @@ module Facturapi
       # es "AAAA-MM-DD' (anio, mes, dia)
       attr_accessor :periodo_hasta
 
-      # Corresponde a la Fecha de vencimiento y es obligatoria en
-      # el caso de una facturacion de servicios periodicos domiciliarios, el
-      # formato de la fecha es "AAAA-MM-DD' (anio, mes, dia)
-      attr_accessor :fch_venc
+      # Indica si las lineas de detalle, descuentos y recargos se expresan
+      # en montos brutos. (Solo para documentos sin impuestos adicionales).
+      # Solamente se acepta el valor 1 ( <MntBruto>1</MntBruto> ).
+      # Si no se indica, se asume los valores en montos Netos.
+      attr_accessor :mnt_bruto
+
+      # (Solo para Guias de despacho) Indica si el documento acompania bienes y
+      # el despacho es por cuenta del vendedor o del comprador.
+      # No se incluye si el documento no acompania bienes o se trata de una
+      # Factura o Nota correspondiente a la prestacion de servicios.
+      # Sus valores pueden ser:
+      #
+      # - 0: Sin Despacho.
+      # - 1: Despacho por cuenta del receptor del documento (cliente o vendedor
+      #      en caso de Facturas de compra).
+      # - 2: Despacho por cuenta del emisor a instalaciones del cliente.
+      # - 3: Despacho por cuenta del emisor a otras instalaciones
+      #      (Ejemplo: entrega en Obra).
+      attr_accessor :tipo_despacho
+
+      # (Solo para Guias de despacho) Indica si el traslado de mercaderia es por
+      # Venta (valor 1) o por otros motivos que no corresponden a venta
+      # (valores mayores a 1). Sus valores pueden ser:
+      #
+      # - 1: Operacion constituye venta.
+      # - 2: Ventas por efectuar.
+      # - 3: Consignaciones.
+      # - 4: Entrega gratuita.
+      # - 5: Traslados internos.
+      # - 6: Otros traslados no venta.
+      # - 7: Guia de devolucion.
+      attr_accessor :ind_traslado
 
       def initialize(params = {})
-        @tipo_dte = /^39|41$/ =~ params[:tipo_dte].to_s ? params[:tipo_dte].to_s : '39'
+        @tipo_dte = VALID_TIPO_DTE =~ params[:tipo_dte].to_s ? params[:tipo_dte].to_s : '39'
         @folio = params[:folio] || 0
-        @fch_emis = format_date(params[:fch_emis])
-        @ind_servicio = params[:ind_servicio].to_s if /^[1-4]$/ =~ params[:ind_servicio].to_s
-        @ind_mnt_neto = /^[02]$/ =~ params[:ind_mnt_neto].to_s ? params[:ind_mnt_neto].to_s : '0'
-        @periodo_desde = format_date(params[:periodo_desde])
-        @periodo_hasta = format_date(params[:periodo_hasta])
+        @fch_emis = format_date(params[:fch_emis] || Date.today)
         @fch_venc = format_date(params[:fch_venc])
+
+        if boleta?
+          @ind_servicio = params[:ind_servicio].to_s if /^[1-4]$/ =~ params[:ind_servicio].to_s
+          @ind_mnt_neto = params[:ind_mnt_neto].to_s if /^[02]$/ =~ params[:ind_mnt_neto].to_s
+          @periodo_desde = format_date(params[:periodo_desde])
+          @periodo_hasta = format_date(params[:periodo_hasta])
+        end
+
+        if guia_de_despacho?
+          @tipo_despacho = params[:tipo_despacho].to_s if /^[0-3]$/ =~ params[:tipo_despacho].to_s
+          @ind_traslado = params[:ind_traslado].to_s if /^[1-7]$/ =~ params[:ind_traslado].to_s
+        end
+
+        @mnt_bruto = 1 if params[:mnt_bruto]
       end
 
       def as_node
@@ -67,11 +128,18 @@ module Facturapi
           id_doc << create_node('TipoDTE') { |n| n << tipo_dte }
           id_doc << create_node('Folio') { |n| n << folio }
           id_doc << create_node('FchEmis') { |n| n << fch_emis }
-          id_doc << create_node('IndServicio') { |n| n << ind_servicio }
-          id_doc << create_node('IndMntNeto') { |n| n << ind_mnt_neto }
-          id_doc << create_node('PeriodoDesde') { |n| n << periodo_desde }
-          id_doc << create_node('PeriodoHasta') { |n| n << periodo_hasta }
           id_doc << create_node('FchVenc') { |n| n << fch_venc }
+          if boleta?
+            id_doc << create_node('IndServicio') { |n| n << ind_servicio }
+            id_doc << create_node('IndMntNeto') { |n| n << ind_mnt_neto }
+            id_doc << create_node('PeriodoDesde') { |n| n << periodo_desde }
+            id_doc << create_node('PeriodoHasta') { |n| n << periodo_hasta }
+          end
+          if guia_de_despacho?
+            id_doc << create_node('TipoDespacho') { |n| n << tipo_despacho }
+            id_doc << create_node('IndTraslado') { |n| n << ind_traslado }
+          end
+          id_doc << create_node('MntBruto') { |n| n << mnt_bruto } if mnt_bruto
         end
       end
 
@@ -80,11 +148,19 @@ module Facturapi
       end
 
       def monto_bruto?
-        ind_mnt_neto == '0'
+        ind_mnt_neto == '0' || mnt_bruto == 1
       end
 
       def monto_neto?
-        ind_mnt_neto == '2'
+        ind_mnt_neto == '2' || mnt_bruto != 1
+      end
+
+      def boleta?
+        /^39|41$/ =~ tipo_dte
+      end
+
+      def guia_de_despacho?
+        /^50|52$/ =~ tipo_dte
       end
     end
   end

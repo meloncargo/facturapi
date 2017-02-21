@@ -11,10 +11,6 @@ module Facturapi
       # en estas circunstancias.
       attr_accessor :rut_recep
 
-      # Este campo es utilizado para identificar de manera adicional al cliente,
-      # basado en una codificacion interna.
-      attr_accessor :cdg_int_recep
-
       # Corresponde a la razon social o nombre del Cliente.
       attr_accessor :rzn_soc_recep
 
@@ -34,6 +30,14 @@ module Facturapi
       # Corresponde a la ciudad legal del Cliente (registrada en el SII)
       attr_accessor :ciudad_recep
 
+      # Este campo es utilizado para identificar de manera adicional al cliente,
+      # basado en una codificacion interna.
+      attr_accessor :cdg_int_recep
+
+      # Corresponde al giro del negocio del Cliente antes identificado, con un
+      # maximo de 40 caracteres
+      attr_accessor :giro_recep
+
       def initialize(params = {})
         @rut_recep = params[:rut_recep] || RUT_AUXILIAR
         @cdg_int_recep = params[:cdg_int_recep]
@@ -47,12 +51,13 @@ module Facturapi
       def as_node
         create_node('Receptor') do |receptor|
           receptor << create_node('RUTRecep') { |n| n << rut_recep }
-          receptor << create_node('CdgIntRecep') { |n| n << cdg_int_recep }
           receptor << create_node('RznSocRecep') { |n| n << rzn_soc_recep }
           receptor << create_node('Contacto') { |n| n << contacto }
           receptor << create_node('DirRecep') { |n| n << dir_recep }
           receptor << create_node('CmnaRecep') { |n| n << cmna_recep }
           receptor << create_node('CiudadRecep') { |n| n << ciudad_recep }
+          receptor << create_node('CdgIntRecep') { |n| n << cdg_int_recep } if cdg_int_recep
+          receptor << create_node('GiroRecep') { |n| n << giro_recep } if giro_recep
         end
       end
     end

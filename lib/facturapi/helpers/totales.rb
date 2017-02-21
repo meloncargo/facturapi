@@ -77,6 +77,10 @@ module Facturapi
       #   VlrPagar = MntTotal + SaldoAnterior
       attr_accessor :vlr_pagar
 
+      # Corresponde a la tasa de impuesto al valor agregado (IVA), este valor
+      # debe ser expresado en porcentaje
+      attr_accessor :tasa_iva
+
       def initialize(params = {})
         @mnt_neto = params[:mnt_neto].to_i if params[:mnt_neto]
         @mnt_exe = params[:mnt_exe].to_i if params[:mnt_exe]
@@ -86,6 +90,7 @@ module Facturapi
         @total_periodo = params[:total_periodo].to_i if params[:total_periodo]
         @saldo_anterior = params[:saldo_anterior].to_i
         @vlr_pagar = params[:vlr_pagar].to_i if params[:vlr_pagar]
+        @tasa_iva = params[:tasa_iva]
         autocomplete! if params[:auto]
       end
 
@@ -95,10 +100,11 @@ module Facturapi
           totales << create_node('MntExe') { |n| n << mnt_exe }
           totales << create_node('IVA') { |n| n << iva }
           totales << create_node('MntTotal') { |n| n << mnt_total }
-          totales << create_node('MontoNF') { |n| n << monto_nf }
-          totales << create_node('TotalPeriodo') { |n| n << total_periodo }
-          totales << create_node('SaldoAnterior') { |n| n << saldo_anterior }
-          totales << create_node('VlrPagar') { |n| n << vlr_pagar }
+          totales << create_node('MontoNF') { |n| n << monto_nf } if monto_nf
+          totales << create_node('TotalPeriodo') { |n| n << total_periodo } if total_periodo
+          totales << create_node('SaldoAnterior') { |n| n << saldo_anterior } if saldo_anterior
+          totales << create_node('VlrPagar') { |n| n << vlr_pagar } if vlr_pagar
+          totales << create_node('TasaIVA') { |n| n << tasa_iva } if tasa_iva
         end
       end
 
@@ -107,9 +113,11 @@ module Facturapi
         mnt_neto = params[:mnt_neto]
         mnt_exe = params[:mnt_exe]
         monto_nf = params[:monto_nf]
+        is_boleta = params[:is_boleta]
+        self.tasa_iva = IVA * 100 if !is_boleta && tasa_iva.blank?
         if is_monto_neto && mnt_neto
           self.mnt_neto = mnt_neto if self.mnt_neto.blank?
-          self.iva = (mnt_neto * IVA).to_i if iva.blank?
+          self.iva = (mnt_neto * (tasa_iva || IVA * 100) / 100).to_i if iva.blank?
         end
         self.mnt_exe = mnt_exe if self.mnt_exe.blank? && mnt_exe
         self.monto_nf = monto_nf if self.monto_nf.blank? && monto_nf

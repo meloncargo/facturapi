@@ -86,11 +86,16 @@ module Facturapi
         end
         totales.autocomplete!(
           is_monto_neto: encabezado.id_doc.monto_neto?,
+          is_boleta: encabezado.id_doc.boleta?,
           mnt_neto: mnt_neto,
           mnt_exe: mnt_exe,
           monto_nf: monto_nf
         )
         self
+      end
+
+      def to_s
+        as_node.to_s
       end
     end
   end
