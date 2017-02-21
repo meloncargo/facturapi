@@ -82,9 +82,15 @@ dte = Dte.new(
 dte.autocomplete!
 
 procesar = Facturapi::Service::Procesar.new(dte)
-doc = procesar.send
+response = procesar.send
 
-puts doc
+
+response.valid? # true
+response.error # ''
+response.folio # 4666638667
+response.tipo_dte # 39
+response.fecha # 2017-02-20 19:01:36 -0300
+puts response
 # <?xml version="1.0"?>
 # <WSPLANO>
 #   <Resultado>True</Resultado>
@@ -100,6 +106,15 @@ puts doc
 #   </Detalle>
 # </WSPLANO>
 
+```
+
+Obtención de link para descargar documento tributario
+
+```ruby
+obtener_link = Facturapi::Services::ObtenerLink.new(folio: '123')
+response = obtener_link.send
+
+response.url # http://www.facturacion.cl/plano/descargar.php?...
 ```
 
 Mas información sobre los atributos aceptados por los helpers, revisa [la
