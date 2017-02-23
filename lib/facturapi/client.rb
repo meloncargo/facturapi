@@ -10,7 +10,8 @@ module Facturapi
 
       def xml(method, params = {})
         ops = client.operation(method)
-        ops.build(message: params).to_s
+        params[:login] ||= login
+        Nokogiri::XML(ops.build(message: params).to_s).to_s
       end
 
       def client
