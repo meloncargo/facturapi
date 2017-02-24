@@ -24,6 +24,8 @@ module Facturapi
         61 => :nota_cred_elec
       }.freeze
 
+      VALID_REGEXP = Regexp.new("^#{DOCUMENTS.keys.join('|')}$")
+
       def self.sym(dte_type)
         DOCUMENTS[dte_type]
       end

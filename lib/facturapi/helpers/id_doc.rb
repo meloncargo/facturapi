@@ -3,8 +3,6 @@ module Facturapi
     # Corresponde a la Identificacion del Documento en el encabezado de una
     # Boleta Electronica
     class IdDoc
-      VALID_TIPO_DTE = /^30|32|33|34|35|38|39|40|41|43|45|46|50|52|55|56|60|61$/
-
       # Corresponde al numero de Tipo de Documento codificado por el Servicio de
       # Impuestos Internos (SII).
       # - 30: FACTURA
@@ -103,9 +101,9 @@ module Facturapi
       attr_accessor :ind_traslado
 
       def initialize(params = {})
-        @tipo_dte = VALID_TIPO_DTE =~ params[:tipo_dte].to_s ? params[:tipo_dte].to_s : '39'
+        @tipo_dte = params[:tipo_dte].to_s if Facturapi::Utils::DteTypes::VALID_REGEXP =~ params[:tipo_dte].to_s
         @folio = params[:folio] || 0
-        @fch_emis = format_date(params[:fch_emis] || Date.today)
+        @fch_emis = format_date(params[:fch_emis])
         @fch_venc = format_date(params[:fch_venc])
 
         if boleta?
