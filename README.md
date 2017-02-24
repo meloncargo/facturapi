@@ -1,5 +1,7 @@
 # Facturapi
 
+[![Code Climate](https://codeclimate.com/github/meloncargo/facturapi/badges/gpa.svg)](https://codeclimate.com/github/meloncargo/facturapi)
+
 Esta gema facilita la integración con el servicio SOAP de facturacion.cl para
 aplicaciones Ruby on Rails.
 
