@@ -119,13 +119,13 @@ module Facturapi
           self.mnt_neto = mnt_neto if self.mnt_neto.blank?
           self.iva = (mnt_neto * (tasa_iva || IVA * 100) / 100).to_i if iva.blank?
         end
-        self.mnt_exe = mnt_exe if self.mnt_exe.blank? && mnt_exe
-        self.monto_nf = monto_nf if self.monto_nf.blank? && monto_nf
+        self.mnt_exe = mnt_exe || 0 if self.mnt_exe.blank?
+        self.monto_nf = monto_nf || 0 if self.monto_nf.blank?
 
         if mnt_total.blank? && mnt_neto
           self.mnt_total = is_monto_neto ? auto_mnt_total : mnt_neto
         end
-        self.total_periodo = mnt_total + monto_nf if total_periodo.blank?
+        self.total_periodo = mnt_total + self.monto_nf if total_periodo.blank?
         self.vlr_pagar = mnt_total + saldo_anterior if vlr_pagar.blank?
       end
 
