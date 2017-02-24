@@ -1,0 +1,21 @@
+es:
+  facturapi:
+    dte_type:
+      factura: 'Factura'
+      factura_ex: 'Factura exenta'
+      factura_elec: 'Factura electrónica'
+      factura_ex_elec: 'Factura exenta electrónica'
+      boleta: 'Boleta'
+      boleta_ex: 'Boleta exenta'
+      boleta_elec: 'Boleta electrónica'
+      liq_factura: 'Liquidación factura'
+      boleta_ex_elec: 'Boleta exenta electrónica'
+      liq_factura_elec: 'Liquidación factura electrónica'
+      factura_compra: 'Factura de compra'
+      factura_compra_elec: 'Factura de compra electrónica'
+      guia_despacho: 'Guia de despacho'
+      guia_despacho_elec: 'Guia de despacho electrónica'
+      nota_deb: 'Nota de débito'
+      nota_deb_elec: 'Nota de débito electrónica'
+      nota_cred: 'Nota de crédito'
+      nota_cred_elec: 'Nota de crédito electrónica'
