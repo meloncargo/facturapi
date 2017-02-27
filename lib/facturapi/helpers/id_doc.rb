@@ -108,7 +108,7 @@ module Facturapi
 
         if boleta?
           @ind_servicio = params[:ind_servicio].to_s if /^[1-4]$/ =~ params[:ind_servicio].to_s
-          @ind_mnt_neto = params[:ind_mnt_neto].to_s if /^[02]$/ =~ params[:ind_mnt_neto].to_s
+          @ind_mnt_neto = /^[02]$/ =~ params[:ind_mnt_neto].to_s ? params[:ind_mnt_neto].to_s : '0'
           @periodo_desde = format_date(params[:periodo_desde])
           @periodo_hasta = format_date(params[:periodo_hasta])
         end
@@ -150,7 +150,7 @@ module Facturapi
       end
 
       def monto_neto?
-        ind_mnt_neto == '2' || mnt_bruto != 1
+        ind_mnt_neto == '2' || (mnt_bruto && mnt_bruto != 1)
       end
 
       def boleta?
