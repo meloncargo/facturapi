@@ -117,8 +117,10 @@ module Facturapi
       def as_node
         create_node('Detalle') do |detalle|
           detalle << create_node('NroLinDet') { |n| n << nro_lin_det }
-          detalle << create_node('TpoCodigo') { |n| n << tpo_codigo }
-          detalle << create_node('VlrCodigo') { |n| n << vlr_codigo }
+          detalle << create_node('CdgItem') do |cdg_item|
+            cdg_item << create_node('TpoCodigo') { |n| n << tpo_codigo }
+            cdg_item << create_node('VlrCodigo') { |n| n << vlr_codigo }
+          end
           detalle << create_node('IndExe') { |n| n << ind_exe }
           detalle << create_node('NmbItem') { |n| n << nmb_item }
           detalle << create_node('QtyItem') { |n| n << qty_item }
