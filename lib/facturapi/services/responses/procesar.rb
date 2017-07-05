@@ -4,7 +4,7 @@ module Facturapi
       class Procesar
         attr_reader :response
 
-        def initialize(response)
+        def initialize(response = nil)
           @response = Nokogiri::XML(response)
         end
 

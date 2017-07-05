@@ -7,7 +7,7 @@ module Facturapi
     class Procesar
       attr_accessor :dte
 
-      def initialize(dte)
+      def initialize(dte = nil)
         @dte = dte
       end
 
