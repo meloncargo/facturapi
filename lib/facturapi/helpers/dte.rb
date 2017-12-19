@@ -61,6 +61,29 @@ module Facturapi
       end
 
       def autocomplete!
+        mnt_neto, mnt_exe, monto_nf = autocomplete_detalle
+        mnt_neto += autocomplete_dsc_rcg_global || 0
+        autocomplete_referencia
+        totales.autocomplete!(id_doc: encabezado.id_doc, mnt_neto: mnt_neto,
+                              mnt_exe: mnt_exe, monto_nf: monto_nf)
+        self
+      end
+
+      def to_s
+        as_node.to_s
+      end
+
+      def autocomplete_cn!
+        mnt_total = autocomplete_detalle[0]
+        autocomplete_dsc_rcg_global
+        autocomplete_referencia
+        totales.autocomplete_cn!(id_doc: encabezado.id_doc, mnt_total: mnt_total)
+        self
+      end
+
+      private
+
+      def autocomplete_detalle
         mnt_neto = 0
         mnt_exe = 0
         monto_nf = 0
@@ -71,33 +94,28 @@ module Facturapi
           mnt_exe += det.monto_item if det.exento_iva?
           monto_nf += det.monto_item if det.no_fact? || det.no_fact_neg?
         end
-        if dsc_rcg_global && dsc_rcg_global.any?
-          dsc_rcg_global.each_with_index do |drg, idx|
-            drg.nro_lin_dr = idx + 1 if drg.nro_lin_dr.blank?
-            if drg.descuento?
-              mnt_neto -= drg.valor_dr
-            else
-              mnt_neto += drg.valor_dr
-            end
-          end
-        end
-        if referencia && referencia.any?
-          referencia.each_with_index do |ref, idx|
-            ref.nro_lin_ref = idx + 1 if ref.nro_lin_ref.blank?
-          end
-        end
-        totales.autocomplete!(
-          is_monto_neto: encabezado.id_doc.monto_neto?,
-          is_boleta: encabezado.id_doc.boleta?,
-          mnt_neto: mnt_neto,
-          mnt_exe: mnt_exe,
-          monto_nf: monto_nf
-        )
-        self
+        [mnt_neto, mnt_exe, monto_nf]
       end
 
-      def to_s
-        as_node.to_s
+      def autocomplete_dsc_rcg_global
+        return unless dsc_rcg_global && dsc_rcg_global.any?
+        mnt_neto = 0
+        dsc_rcg_global.each_with_index do |drg, idx|
+          drg.nro_lin_dr = idx + 1 if drg.nro_lin_dr.blank?
+          if drg.descuento?
+            mnt_neto -= drg.valor_dr
+          else
+            mnt_neto += drg.valor_dr
+          end
+        end
+        mnt_neto
+      end
+
+      def autocomplete_referencia
+        return unless referencia && referencia.any?
+        referencia.each_with_index do |ref, idx|
+          ref.nro_lin_ref = idx + 1 if ref.nro_lin_ref.blank?
+        end
       end
     end
   end

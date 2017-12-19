@@ -2,11 +2,13 @@ require 'spec_helper'
 
 describe Facturapi::Helpers::Totales do
   let(:totales) { Facturapi::Helpers::Totales.new }
+  let(:id_doc) { Facturapi::Helpers::IdDoc.new(ind_mnt_neto: ind_mnt_neto, tipo_dte: 39) }
+  let(:ind_mnt_neto) { 2 }
 
   describe '.autocomplete!' do
-    context 'with net prices' do
-      before { totales.autocomplete!(is_monto_neto: true, mnt_neto: 100) }
+    before { totales.autocomplete!(id_doc: id_doc, mnt_neto: 100) }
 
+    context 'with net prices' do
       it 'returns the assigned net price' do
         expect(totales.mnt_neto).to eq(100)
       end
@@ -21,7 +23,7 @@ describe Facturapi::Helpers::Totales do
     end
 
     context 'with final prices' do
-      before { totales.autocomplete!(is_monto_neto: false, mnt_neto: 100) }
+      let(:ind_mnt_neto) { 0 }
 
       it 'returns the assigned net price' do
         expect(totales.mnt_neto).to be_nil

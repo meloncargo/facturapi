@@ -90,7 +90,7 @@ module Facturapi
         @mnt_total = params[:mnt_total].to_i if params[:mnt_total]
         @monto_nf = params[:monto_nf].to_i if params[:monto_nf]
         @total_periodo = params[:total_periodo].to_i if params[:total_periodo]
-        @saldo_anterior = params[:saldo_anterior].to_i
+        @saldo_anterior = params[:saldo_anterior].to_i if params[:saldo_anterior]
         @vlr_pagar = params[:vlr_pagar].to_i if params[:vlr_pagar]
         @tasa_iva = params[:tasa_iva]
         autocomplete! if params[:auto]
@@ -99,7 +99,7 @@ module Facturapi
       def as_node
         create_node('Totales') do |totales|
           totales << create_node('MntNeto') { |n| n << mnt_neto }
-          totales << create_node('MntExe') { |n| n << mnt_exe }
+          totales << create_node('MntExe') { |n| n << mnt_exe } if mnt_exe
           totales << create_node('IVA') { |n| n << iva }
           totales << create_node('MntTotal') { |n| n << mnt_total }
           totales << create_node('MontoNF') { |n| n << monto_nf } if monto_nf
@@ -111,13 +111,12 @@ module Facturapi
       end
 
       def autocomplete!(params = {})
-        is_monto_neto = params[:is_monto_neto]
+        id_doc = params[:id_doc]
         mnt_neto = params[:mnt_neto]
         mnt_exe = params[:mnt_exe]
         monto_nf = params[:monto_nf]
-        is_boleta = params[:is_boleta]
-        self.tasa_iva = IVA * 100 if !is_boleta && tasa_iva.blank?
-        if is_monto_neto && mnt_neto
+        auto_tasa_iva unless id_doc.boleta?
+        if id_doc.monto_neto? && mnt_neto
           self.mnt_neto = mnt_neto if self.mnt_neto.blank?
           self.iva = (mnt_neto * (tasa_iva || IVA * 100) / 100).to_i if iva.blank?
         end
@@ -125,10 +124,26 @@ module Facturapi
         self.monto_nf = monto_nf || 0 if self.monto_nf.blank?
 
         if mnt_total.blank? && mnt_neto
-          self.mnt_total = is_monto_neto ? auto_mnt_total : mnt_neto
+          self.mnt_total = id_doc.monto_neto? ? auto_mnt_total : mnt_neto
         end
         self.total_periodo = mnt_total + self.monto_nf if total_periodo.blank?
-        self.vlr_pagar = mnt_total + saldo_anterior if vlr_pagar.blank?
+        self.vlr_pagar = mnt_total + (saldo_anterior || 0) if vlr_pagar.blank?
+      end
+
+      def autocomplete_cn!(params = {})
+        id_doc = params[:id_doc]
+        return unless id_doc.nota_de_credito?
+        mnt_total = params[:mnt_total]
+        self.mnt_total = mnt_total if self.mnt_total.blank? && mnt_total
+        auto_tasa_iva
+        self.iva = (mnt_total * tasa_iva / (tasa_iva + 100)).to_i if iva.blank?
+        self.mnt_neto = mnt_total - iva if mnt_neto.blank?
+      end
+
+      private
+
+      def auto_tasa_iva
+        self.tasa_iva = (IVA * 100).to_i if tasa_iva.blank?
       end
 
       def auto_mnt_total
