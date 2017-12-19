@@ -159,6 +159,10 @@ module Facturapi
       def guia_de_despacho?
         /^50|52$/ =~ tipo_dte
       end
+
+      def nota_de_credito?
+        /^60|61$/ =~ tipo_dte
+      end
     end
   end
 end
