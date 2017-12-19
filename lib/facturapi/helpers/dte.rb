@@ -1,6 +1,8 @@
 module Facturapi
   module Helpers
     class Dte
+      include Facturapi::Xml
+
       attr_accessor :encabezado, :detalle, :dsc_rcg_global, :referencia, :id
 
       def initialize(params = {})

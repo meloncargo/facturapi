@@ -2,6 +2,8 @@ module Facturapi
   module Helpers
     # Corresponde a los valores totales de una Boleta Electronica.
     class Totales
+      include Facturapi::Xml
+
       IVA = 0.19
 
       # Corresponde al valor Neto de la boleta electronica, solamente se indica

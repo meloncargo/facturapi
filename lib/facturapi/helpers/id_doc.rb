@@ -3,6 +3,9 @@ module Facturapi
     # Corresponde a la Identificacion del Documento en el encabezado de una
     # Boleta Electronica
     class IdDoc
+      include Facturapi::Helpers
+      include Facturapi::Xml
+
       # Corresponde al numero de Tipo de Documento codificado por el Servicio de
       # Impuestos Internos (SII).
       # - 30: FACTURA
@@ -139,10 +142,6 @@ module Facturapi
           end
           id_doc << create_node('MntBruto') { |n| n << mnt_bruto } if mnt_bruto
         end
-      end
-
-      def format_date(date)
-        date.strftime('%Y-%m-%d') if date
       end
 
       def monto_bruto?

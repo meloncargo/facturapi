@@ -10,4 +10,12 @@ require 'facturapi/helpers/receptor'
 require 'facturapi/helpers/referencia'
 require 'facturapi/helpers/totales'
 
-include Facturapi::Xml
+module Facturapi
+  module Helpers
+    def format_date(date)
+      return unless date && date.is_a?(ActiveSupport::TimeWithZone) ||
+                    date.is_a?(Date)
+      date.strftime('%Y-%m-%d')
+    end
+  end
+end

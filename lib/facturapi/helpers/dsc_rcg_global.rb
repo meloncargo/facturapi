@@ -4,6 +4,8 @@ module Facturapi
     # Boleta Electronica, etiqueta e informacion opcional, con un maximo
     # de 20
     class DscRcgGlobal
+      include Facturapi::Xml
+
       # Indica el numero secuencial de linea de descuento /
       # recargo de la Boleta Electronica, el cual puede ser desde la linea 1
       # hasta la linea 20

@@ -3,6 +3,8 @@ module Facturapi
     # Corresponde a las lineas de detalle de una Boleta Electronica, con un
     # minimo de 1 linea de detalle y un maximo de 1.000 lineas
     class Detalle
+      include Facturapi::Xml
+
       # Indica el numero secuencial de linea de detalle de la Boleta
       # Electronica, el cual puede ser desde la linea 1 hasta la linea 1.000.
       attr_accessor :nro_lin_det

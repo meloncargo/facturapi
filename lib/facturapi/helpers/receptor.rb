@@ -2,6 +2,8 @@ module Facturapi
   module Helpers
     # Corresponde a los datos del Receptor de una Boleta Electronica.
     class Receptor
+      include Facturapi::Xml
+
       RUT_AUXILIAR = '66666666-6'.freeze
 
       # Corresponde al RUT del Cliente con valor desde 100.000 hasta 99

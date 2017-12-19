@@ -1,6 +1,8 @@
 module Facturapi
   module Helpers
     class Encabezado
+      include Facturapi::Xml
+
       attr_accessor :id_doc, :emisor, :receptor, :totales
 
       def initialize(params = {})

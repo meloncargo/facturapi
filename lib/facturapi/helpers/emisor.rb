@@ -2,6 +2,8 @@ module Facturapi
   module Helpers
     # Corresponde a los datos del Emisor de una Boleta Electronica
     class Emisor
+      include Facturapi::Xml
+
       # Corresponde al RUT del Emisor, con valor desde 100.000
       # hasta 99 millones, guion y digito verificador (sin separador de miles).
       attr_accessor :rut_emisor

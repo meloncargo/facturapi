@@ -3,6 +3,9 @@ module Facturapi
     # Corresponde a las lineas de referencia de una Boleta Electronica,
     # etiqueta e informacion opcional con un maximo de 40
     class Referencia
+      include Facturapi::Helpers
+      include Facturapi::Xml
+
       # Indica el numero secuencial de linea de referencia de la Boleta
       # Electronica, el cual puede ser desde la linea 1 hasta la linea 40.
       attr_accessor :nro_lin_ref
@@ -64,7 +67,8 @@ module Facturapi
         @razon_ref = params[:razon_ref]
         @tpo_doc_ref = params[:tpo_doc_ref]
         @folio_ref = params[:folio_ref]
-        @fecha_ref = params[:fecha_ref]
+        @fecha_ref = format_date(params[:fecha_ref])
+        @fecha_ref ||= params[:fecha_ref]
       end
 
       def as_node
