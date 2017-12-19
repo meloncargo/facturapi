@@ -59,7 +59,7 @@ module Facturapi
 
       # Es la fecha de emision del documento al que se hace referencia, el
       # formato de la fecha es "AAAA-MM-DD" (anio, mes, dia)
-      attr_accessor :fecha_ref
+      attr_accessor :fch_ref
 
       def initialize(params = {})
         @nro_lin_ref = params[:nro_lin_ref]
@@ -67,18 +67,18 @@ module Facturapi
         @razon_ref = params[:razon_ref]
         @tpo_doc_ref = params[:tpo_doc_ref]
         @folio_ref = params[:folio_ref]
-        @fecha_ref = format_date(params[:fecha_ref])
-        @fecha_ref ||= params[:fecha_ref]
+        @fch_ref = format_date(params[:fch_ref])
+        @fch_ref ||= params[:fch_ref]
       end
 
       def as_node
         create_node('Referencia') do |referencia|
           referencia << create_node('NroLinRef') { |n| n << nro_lin_ref }
-          referencia << create_node('CodRef') { |n| n << cod_ref }
+          referencia << create_node('CodRef') { |n| n << cod_ref } if cod_ref
           referencia << create_node('RazonRef') { |n| n << razon_ref }
           referencia << create_node('TpoDocRef') { |n| n << tpo_doc_ref } if tpo_doc_ref
           referencia << create_node('FolioRef') { |n| n << folio_ref } if folio_ref
-          referencia << create_node('FechaRef') { |n| n << fecha_ref } if fecha_ref
+          referencia << create_node('FchRef') { |n| n << fch_ref } if fch_ref
         end
       end
     end
