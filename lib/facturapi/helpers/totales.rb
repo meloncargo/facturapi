@@ -118,7 +118,7 @@ module Facturapi
         auto_tasa_iva unless id_doc.boleta?
         if id_doc.monto_neto? && mnt_neto
           self.mnt_neto = mnt_neto if self.mnt_neto.blank?
-          self.iva = (mnt_neto * (tasa_iva || IVA * 100) / 100).to_i if iva.blank?
+          self.iva = (mnt_neto * (tasa_iva || IVA * 100).to_f / 100).round if iva.blank?
         end
         self.mnt_exe = mnt_exe || 0 if self.mnt_exe.blank?
         self.monto_nf = monto_nf || 0 if self.monto_nf.blank?
@@ -136,7 +136,7 @@ module Facturapi
         mnt_total = params[:mnt_total]
         self.mnt_total = mnt_total if self.mnt_total.blank? && mnt_total
         auto_tasa_iva
-        self.iva = (mnt_total * tasa_iva / (tasa_iva + 100)).to_i if iva.blank?
+        self.iva = (mnt_total * tasa_iva.to_f / (tasa_iva + 100)).round if iva.blank?
         self.mnt_neto = mnt_total - iva if mnt_neto.blank?
       end
 
