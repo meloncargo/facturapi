@@ -25,9 +25,9 @@ module Facturapi
       attr_accessor :cedible
 
       def initialize(params)
-        @tpomov = Base64.strict_encode64(params[:tpomov] || 'B')
+        @tpomov = Base64.strict_encode64(params[:tpomov].to_s.upcase.presence || 'B')
         @folio = Base64.strict_encode64(params[:folio].to_s)
-        @tipo = Base64.strict_encode64 (params[:tipo] || '39').to_s
+        @tipo = Base64.strict_encode64((params[:tipo] || '39').to_s)
         @cedible = Base64.strict_encode64(params[:cedible] ? 'True' : 'False')
       end
 

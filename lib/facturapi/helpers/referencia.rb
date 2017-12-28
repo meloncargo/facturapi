@@ -63,7 +63,15 @@ module Facturapi
 
       def initialize(params = {})
         @nro_lin_ref = params[:nro_lin_ref]
-        @cod_ref = params[:cod_ref]
+        if params[:cod_ref].is_a? Symbol
+          @cod_ref =
+            case params[:cod_ref]
+            when :anulacion then 1
+            when :corrige_texto then 2
+            when :corrige_monto then 3
+            end
+        end
+        @cod_ref ||= params[:cod_ref]
         @razon_ref = params[:razon_ref]
         @tpo_doc_ref = params[:tpo_doc_ref]
         @folio_ref = params[:folio_ref]
